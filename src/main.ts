@@ -45,8 +45,7 @@ async function bootstrap() {
     }),
   );
 
-  // app.setGlobalPrefix('api');
-
+  // Swagger setup
   const config = new DocumentBuilder()
     .setTitle('Feelpay API')
     .setDescription('The Feelpay API description')
@@ -54,6 +53,12 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
+  
+  app.enableCors({
+    origin: process.env.CORS_ORIGIN || '*',
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
 
   const port = Number(process.env.PORT) || 8080;
   await app.listen(port, '0.0.0.0');
