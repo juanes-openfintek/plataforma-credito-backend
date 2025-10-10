@@ -45,7 +45,8 @@ async function bootstrap() {
     }),
   );
 
-  // Swagger setup
+  // app.setGlobalPrefix('api');
+
   const config = new DocumentBuilder()
     .setTitle('Feelpay API')
     .setDescription('The Feelpay API description')
@@ -53,14 +54,9 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-  
-  app.enableCors({
-    origin: process.env.CORS_ORIGIN || '*',
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  });
 
-  const port = Number(process.env.PORT) || 8080;
-  await app.listen(port, '0.0.0.0');
+  await app.listen(3001).then(() => {
+    console.log('Server running on port http://localhost:3001');
+  });
 }
 bootstrap();
