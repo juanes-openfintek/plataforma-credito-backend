@@ -12,7 +12,12 @@ async function bootstrap() {
   
   // Habilitar CORS para permitir peticiones desde el frontend
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://127.0.0.1:3000'], // URLs del frontend
+    origin: [
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+      'http://localhost:3002',
+      'http://127.0.0.1:3002'
+    ], // URLs del frontend (puerto 3000 y 3002)
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true, // Permitir envío de cookies y headers de autenticación
     allowedHeaders: [
