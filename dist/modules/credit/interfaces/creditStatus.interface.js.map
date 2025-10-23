@@ -1,1 +1,0 @@
-{"version":3,"file":"creditStatus.interface.js","sourceRoot":"","sources":["../../../../src/modules/credit/interfaces/creditStatus.interface.ts"],"names":[],"mappings":";;;AAAa,QAAA,YAAY,GAAG;IAC1B,OAAO,EAAE,SAAS;IAClB,QAAQ,EAAE,UAAU;IACpB,QAAQ,EAAE,UAAU;IACpB,SAAS,EAAE,WAAW;IACtB,IAAI,EAAE,MAAM;IACZ,MAAM,EAAE,QAAQ;CACR,CAAC"}
