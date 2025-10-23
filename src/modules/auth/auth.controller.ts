@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Request, Put } from '@nestjs/common';
+import { Controller, Post, Body, Get, Request, Put, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
   LoginUserDto,
@@ -99,5 +99,11 @@ export class AuthController {
       ok: true,
       user,
     };
+  }
+
+  @Get('get-users')
+  @Auth(ValidRoles.admin)
+  getUsers(@Query() query: any) {
+    return this.authService.getUsers(query);
   }
 }

@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
@@ -13,6 +13,7 @@ import { DisburserModule } from './modules/disburser/disburser.module';
 import { ApproverModule } from './modules/approver/approver.module';
 import { FilesModule } from './modules/files/files.module';
 import { AccountModule } from './modules/account/account.module';
+import { StatisticsModule } from './modules/statistics/statistics.module';
 
 @Module({
   imports: [
@@ -29,12 +30,24 @@ import { AccountModule } from './modules/account/account.module';
     ApproverModule,
     FilesModule,
     AccountModule,
+    StatisticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes('*'); // Aplica la middleware a todas las rutas
+    // Aplicar middleware solo a rutas protegidas
+    consumer
+      .apply(AuthMiddleware)
+      .forRoutes(
+        { path: 'admin*', method: RequestMethod.ALL },
+        { path: 'user*', method: RequestMethod.ALL },
+        { path: 'approver*', method: RequestMethod.ALL },
+        { path: 'disburser*', method: RequestMethod.ALL },
+        { path: 'credit*', method: RequestMethod.ALL },
+        { path: 'files*', method: RequestMethod.ALL },
+        { path: 'statistics*', method: RequestMethod.ALL },
+      );
   }
 }

@@ -17,4 +17,12 @@ export class FilesController {
     const fileUrl = await this.filesService.uploadFile(file);
     return { url: fileUrl };
   }
+
+  // Alias para compatibilidad con el frontend
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    const fileUrl = await this.filesService.uploadFile(file);
+    return { url: fileUrl };
+  }
 }

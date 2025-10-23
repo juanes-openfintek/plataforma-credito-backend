@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query } from '@nestjs/common';
 import { CreditService } from './credit.service';
 import { CreateCreditDto } from './dto/create-credit.dto';
 import { ValidRoles } from '../../modules/auth/interfaces';
@@ -26,5 +26,12 @@ export class CreditController {
   @Auth(ValidRoles.user)
   getCreditsByUser(@GetUser() user: User) {
     return this.creditService.getCreditsByUser(ObjectId(user.id));
+  }
+
+  @Get('get-all-credits')
+  @Auth(ValidRoles.admin, ValidRoles.approver, ValidRoles.disburser)
+  getAllCredits(@Query('status') status?: string) {
+    const filter = status ? { status } : {};
+    return this.creditService.getAllCredits(filter);
   }
 }

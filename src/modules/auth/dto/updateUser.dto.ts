@@ -1,4 +1,4 @@
-import { Exclude } from 'class-transformer';
+import { Exclude, Transform } from 'class-transformer';
 import {
   IsDate,
   IsEmail,
@@ -42,6 +42,7 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsDate() // Asegúrate de que el campo dateOfBirth sea de tipo Date
+  @Transform(({ value }) => value ? new Date(value) : null)
   @IsAdult()
   dateOfBirth: Date;
 

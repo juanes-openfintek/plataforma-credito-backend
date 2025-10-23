@@ -5,11 +5,24 @@ import {
   IsPhoneNumber,
   IsString,
   Matches,
+  IsNumber,
 } from 'class-validator';
 import { IsAdult } from '../decorators/date.decorator';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 
 export class CreateCreditDto {
+  @IsNumber()
+  @Type(() => Number)
+  amount: number;
+
+  @IsNumber()
+  @Type(() => Number)
+  quotasNumber: number;
+
+  @IsDate()
+  @Transform(({ value }) => new Date(value))
+  maxDate: Date;
+
   @IsEmail()
   email: string;
 
@@ -55,6 +68,9 @@ export class CreateCreditDto {
 
   @IsString()
   positionCompany: string;
+
+  @IsString()
+  typeContract: string;
 
   @IsDate() // Asegúrate de que el campo dateOfAdmission sea de tipo Date
   @Transform(({ value }) => new Date(value))
@@ -108,4 +124,8 @@ export class CreateCreditDto {
   @IsOptional()
   @IsString()
   taxes: string;
+
+  @IsOptional()
+  @IsString()
+  account: string;
 }

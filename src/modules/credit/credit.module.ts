@@ -4,11 +4,15 @@ import { CreditController } from './credit.controller';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Credit, CreditSchema } from './entities/credit.entity';
+import { Account, AccountSchema } from '../account/entities/account.entity';
 
 @Module({
   imports: [
     ConfigModule,
-    MongooseModule.forFeature([{ name: Credit.name, schema: CreditSchema }]),
+    MongooseModule.forFeature([
+      { name: Credit.name, schema: CreditSchema },
+      { name: Account.name, schema: AccountSchema },
+    ]),
   ],
   controllers: [CreditController],
   providers: [CreditService],

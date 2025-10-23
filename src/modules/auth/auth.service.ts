@@ -82,7 +82,7 @@ export class AuthService {
 
   async registerRole(registerUserDto: RegisterUserRoleDto) {
     try {
-      const { name, password, email, lastname } = registerUserDto;
+      const { name, password, email, lastname, identificationNumber, commission } = registerUserDto;
 
       let roles: string[] = [ValidRoles.user];
 
@@ -108,6 +108,8 @@ export class AuthService {
         lastname,
         email,
         roles,
+        documentNumber: identificationNumber,
+        commission,
       });
 
       sendEmailVerification(userCredentials.user)
@@ -167,11 +169,31 @@ export class AuthService {
     const { email, password } = loginUserDto;
     const auth = getAuth();
     try {
-      const user = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
 
-      const token = await admin.auth().createCustomToken(user.user.uid);
+      const token = await admin.auth().createCustomToken(userCredential.user.uid);
 
-      return { token: token };
+      // Buscar datos del usuario en MongoDB
+      const userData = await this.userModel.findOne({ uid: userCredential.user.uid });
+
+      // Si el usuario existe en MongoDB, retornar sus datos completos
+      if (userData) {
+        return { 
+          token: token,
+          user: userData.toJSON()
+        };
+      }
+
+      // Si no existe en MongoDB, retornar solo el token y datos básicos de Firebase
+      return { 
+        token: token,
+        user: {
+          uid: userCredential.user.uid,
+          email: userCredential.user.email,
+          emailVerified: userCredential.user.emailVerified,
+          roles: ['user']
+        }
+      };
     } catch (error) {
       // Maneja los errores de autenticación adecuadamente
       this.handleDBError(error);
@@ -259,5 +281,15 @@ export class AuthService {
     console.log(error);
 
     throw new InternalServerErrorException('Por favor revise los logs.');
+  }
+
+  async getUsers(query: any = {}) {
+    try {
+      const users = await this.userModel.find(query).exec();
+      return users;
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerErrorException('Error al obtener usuarios.');
+    }
   }
 }

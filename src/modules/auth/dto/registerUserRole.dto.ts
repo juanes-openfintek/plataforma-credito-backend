@@ -4,6 +4,7 @@ import {
   ArrayNotEmpty,
   IsArray,
   IsEmail,
+  IsOptional,
   IsString,
   Matches,
   MaxLength,
@@ -38,4 +39,12 @@ export class RegisterUserRoleDto {
   @ArrayMinSize(1)
   @ArrayMaxSize(4)
   roles: string[];
+
+  @IsOptional()
+  @IsString()
+  identificationNumber?: string;
+
+  @IsOptional()
+  @IsString()
+  commission?: string;
 }

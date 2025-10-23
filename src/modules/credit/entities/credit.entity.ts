@@ -25,6 +25,22 @@ export class Credit {
   @Prop({ type: Types.ObjectId, ref: 'Taxes' })
   taxes: Taxes;
 
+  @Prop({ type: Types.ObjectId, ref: 'Account', required: false })
+  account: any;
+
+  // Información del crédito
+  @Prop({ type: Number, required: true })
+  amount: number;
+
+  @Prop({ type: Number, required: true })
+  quotasNumber: number;
+
+  @Prop({ type: Date, required: true })
+  maxDate: Date;
+
+  @Prop({ type: Date, default: Date.now })
+  created: Date;
+
   // Información personal
   @Prop({ type: String, required: true })
   name: string;
@@ -66,6 +82,9 @@ export class Credit {
 
   @Prop({ type: String, required: true })
   positionCompany: string;
+
+  @Prop({ type: String, required: true })
+  typeContract: string;
 
   @Prop({ type: Date, required: true })
   dateOfAdmission: Date;

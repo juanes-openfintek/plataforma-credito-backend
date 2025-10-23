@@ -49,11 +49,11 @@ export class CreditService {
   }
 
   getCreditsByUser(user: Types.ObjectId) {
-    return this.creditModel.find({ user });
+    return this.creditModel.find({ user }).populate('taxes').populate('account');
   }
 
   getAllCredits(body = {}) {
-    return this.creditModel.find(body);
+    return this.creditModel.find(body).populate('taxes').populate('account').populate('user');
   }
 
   private handleDBError(error: any): never {

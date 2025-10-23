@@ -44,6 +44,9 @@ export class User {
 
   @Prop({ type: String })
   secondLastname: string;
+
+  @Prop({ type: String })
+  commission: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

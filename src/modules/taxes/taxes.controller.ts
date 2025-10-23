@@ -10,7 +10,6 @@ export class TaxesController {
   constructor(private readonly taxesService: TaxesService) {}
 
   @Get()
-  @Auth()
   findAll(@Body() body: GetTaxesDto) {
     return this.taxesService.findAll(body);
   }
