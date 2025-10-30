@@ -14,6 +14,19 @@ export class Credit {
   @Prop({ type: Number, unique: true })
   code: number;
 
+  @Prop({ type: String, unique: true })
+  radicationNumber: string;
+
+  @Prop({ type: Date })
+  radicationDate: Date;
+
+  @Prop({
+    type: String,
+    enum: ['WEB', 'MOBILE', 'ADMIN'],
+    default: 'WEB'
+  })
+  radicationSource: string;
+
   @Prop({ type: String })
   details: string;
 
@@ -128,7 +141,23 @@ CreditSchema.pre('save', async function (next) {
     if (this.isNew) {
       const CreditModel: Model<Credit> = this.constructor as Model<Credit>;
       const lastDocument = await CreditModel.findOne({}, 'code').sort('-code');
-      this['code'] = (lastDocument?.code || 0) + 1;
+      const newCode = (lastDocument?.code || 0) + 1;
+      this['code'] = newCode;
+
+      // Generate radicationNumber: RAD-YYYY-MMDD-XXXXX
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const codeFormatted = String(newCode).padStart(5, '0');
+
+      this['radicationNumber'] = `RAD-${year}-${month}${day}-${codeFormatted}`;
+      this['radicationDate'] = now;
+
+      // Set default radicationSource if not provided
+      if (!this['radicationSource']) {
+        this['radicationSource'] = 'WEB';
+      }
     }
     next();
   } catch (error) {

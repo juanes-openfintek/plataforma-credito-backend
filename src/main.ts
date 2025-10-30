@@ -51,10 +51,22 @@ async function bootstrap() {
   });
 
   // Initialize the firebase admin app
+  const rawStorageBucket = configService.get<string>('FIREBASE_STORAGE_BUCKET');
+  const defaultBucket = configService.get<string>('FIREBASE_PROJECT_ID')
+    ? `${configService.get<string>('FIREBASE_PROJECT_ID')}.appspot.com`
+    : undefined;
+  const bucketCandidate = (rawStorageBucket || defaultBucket || '').trim();
+  const normalizedStorageBucket = bucketCandidate
+    ? bucketCandidate
+        .replace(/^gs:\/\//, '')
+        .replace(/\/$/, '')
+        .replace('.firebasestorage.app', '.appspot.com')
+    : undefined;
+
   admin.initializeApp({
     credential: admin.credential.cert(adminConfig),
     databaseURL: configService.get<string>('FIREBASE_DATABASE_URL'),
-    storageBucket: 'gs://feelpay-backend.appspot.com/',
+    storageBucket: normalizedStorageBucket,
   });
 
   app.useGlobalPipes(
@@ -74,8 +86,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  await app.listen(3001).then(() => {
-    console.log('Server running on port http://localhost:3001');
+  await app.listen(3002).then(() => {
+    console.log('Server running on port http://localhost:3002');
   });
 }
 bootstrap();

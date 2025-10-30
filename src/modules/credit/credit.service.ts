@@ -56,6 +56,52 @@ export class CreditService {
     return this.creditModel.find(body).populate('taxes').populate('account').populate('user');
   }
 
+  async findOne(id: string) {
+    try {
+      const _id = ObjectId(id);
+      const credit = await this.creditModel
+        .findById(_id)
+        .populate('taxes')
+        .populate('account')
+        .populate('user');
+
+      if (!credit) {
+        throw new NotFoundException(`Credit with id ${id} not found`);
+      }
+
+      return credit;
+    } catch (error) {
+      this.handleDBError(error);
+    }
+  }
+
+  async updateStatus(
+    id: string,
+    updateData: { status: string; reason?: string; notes?: string },
+  ) {
+    try {
+      const _id = ObjectId(id);
+
+      const credit = await this.creditModel.findByIdAndUpdate(
+        _id,
+        {
+          status: updateData.status,
+          ...(updateData.reason && { details: updateData.reason }),
+          // You can add a statusHistory field to track all changes
+        },
+        { new: true },
+      );
+
+      if (!credit) {
+        throw new NotFoundException(`Credit with id ${id} not found`);
+      }
+
+      return credit;
+    } catch (error) {
+      this.handleDBError(error);
+    }
+  }
+
   private handleDBError(error: any): never {
     if (error?.response?.message === 'credit/credit-not-found')
       throw new NotFoundException(error.message);

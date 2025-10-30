@@ -101,6 +101,12 @@ export class AuthController {
     };
   }
 
+  @Post('self-delete')
+  @Auth()
+  selfDelete(@GetUser() user: User) {
+    return this.authService.deleteSelf(user);
+  }
+
   @Get('get-users')
   @Auth(ValidRoles.admin)
   getUsers(@Query() query: any) {

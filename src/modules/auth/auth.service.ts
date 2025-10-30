@@ -24,7 +24,6 @@ import {
   getAuth,
   /* signInWithCustomToken, */
   signInWithEmailAndPassword,
-  sendEmailVerification,
   createUserWithEmailAndPassword,
   signInWithCustomToken,
   sendPasswordResetEmail,
@@ -59,16 +58,10 @@ export class AuthService {
         uid: userCredentials.user.uid,
         email,
         roles,
+        emailVerified: true,
       });
 
-      sendEmailVerification(userCredentials.user)
-        .then(() => {
-          // Email verification sent!
-          console.log('Email verification sent!');
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      console.warn('Email verification skipped (demo mode active).');
 
       const token = await admin
         .auth()
@@ -110,16 +103,10 @@ export class AuthService {
         roles,
         documentNumber: identificationNumber,
         commission,
+        emailVerified: true,
       });
 
-      sendEmailVerification(userCredentials.user)
-        .then(() => {
-          // Email verification sent!
-          console.log('Email verification sent!');
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      console.warn('Email verification skipped (demo mode active).');
 
       const token = await admin
         .auth()
@@ -132,25 +119,15 @@ export class AuthService {
   }
 
   async sendEmailVerification(token: string | null): Promise<any> {
-    const auth = getAuth();
-
-    if (!token) throw new UnauthorizedException('Token not valid');
-
-    try {
-      const user = await signInWithCustomToken(auth, token);
-
-      await sendEmailVerification(user.user).then(() => {
-        // Email verification sent!
-        console.log('Email verification sent!');
-      });
-
-      return { message: 'Email verification sent!' };
-    } catch (error) {
-      // Maneja los errores de autenticaciÃ³n adecuadamente
-      this.handleDBError(error);
+    if (!token) {
+      throw new UnauthorizedException('Token not valid');
     }
-  }
 
+    console.warn('Email verification request omitted (demo mode).');
+    return {
+      message: 'La verificación de correo está deshabilitada temporalmente para la demo.',
+    };
+  }
   async sendPasswordResetEmail({ email }: UserEmailDto): Promise<any> {
     const auth = getAuth();
 
@@ -190,7 +167,7 @@ export class AuthService {
         user: {
           uid: userCredential.user.uid,
           email: userCredential.user.email,
-          emailVerified: userCredential.user.emailVerified,
+          emailVerified: true,
           roles: ['user']
         }
       };
@@ -211,7 +188,7 @@ export class AuthService {
     updateUserDto: UpdateUserDto,
     token: string,
   ): Promise<any> {
-    let emailVerified = false;
+    let emailUpdated = false;
 
     try {
       if (updateUserDto?.email) {
@@ -222,17 +199,17 @@ export class AuthService {
         console.log('Email updated!');
 
         await admin.auth().updateUser(userFirebase.user.uid, {
-          emailVerified: false,
+          emailVerified: true,
         });
 
-        emailVerified = true;
+        emailUpdated = true;
       }
 
       const updatedUser = await this.userModel.findOneAndUpdate(
         { uid: user.uid },
         {
           ...updateUserDto,
-          ...(emailVerified ? { emailVerified: false } : null),
+          ...(emailUpdated ? { emailVerified: true } : null),
         },
         { new: true },
       );
@@ -259,6 +236,29 @@ export class AuthService {
         throw new InternalServerErrorException('auth/user-not-found');
 
       return updatedUser;
+    } catch (error) {
+      this.handleDBError(error);
+    }
+  }
+
+  async deleteSelf(user: User): Promise<{ message: string }> {
+    try {
+      await admin
+        .auth()
+        .deleteUser(user.uid)
+        .catch((error) => {
+          if (error?.code !== 'auth/user-not-found') {
+            throw error;
+          }
+        });
+
+      const deletionResult = await this.userModel.deleteOne({ uid: user.uid });
+
+      if (!deletionResult.deletedCount) {
+        throw new NotFoundException('auth/user-not-found');
+      }
+
+      return { message: 'Cuenta eliminada correctamente.' };
     } catch (error) {
       this.handleDBError(error);
     }
@@ -293,3 +293,7 @@ export class AuthService {
     }
   }
 }
+
+
+
+

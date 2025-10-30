@@ -14,6 +14,12 @@ import { ApproverModule } from './modules/approver/approver.module';
 import { FilesModule } from './modules/files/files.module';
 import { AccountModule } from './modules/account/account.module';
 import { StatisticsModule } from './modules/statistics/statistics.module';
+import { RatesModule } from './modules/rates/rates.module';
+import { AuditModule } from './modules/audit/audit.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { DigitalBehaviorModule } from './modules/digital-behavior/digital-behavior.module';
+import { FraudDetectionModule } from './modules/fraud-detection/fraud-detection.module';
+import { OnboardingModule } from './modules/onboarding/onboarding.module';
 
 @Module({
   imports: [
@@ -31,6 +37,12 @@ import { StatisticsModule } from './modules/statistics/statistics.module';
     FilesModule,
     AccountModule,
     StatisticsModule,
+    RatesModule,
+    AuditModule,
+    NotificationsModule,
+    DigitalBehaviorModule,
+    FraudDetectionModule,
+    OnboardingModule,
   ],
   controllers: [AppController],
   providers: [AppService],
@@ -48,6 +60,11 @@ export class AppModule {
         { path: 'credit*', method: RequestMethod.ALL },
         { path: 'files*', method: RequestMethod.ALL },
         { path: 'statistics*', method: RequestMethod.ALL },
+        { path: 'audit*', method: RequestMethod.ALL },
+        { path: 'notifications*', method: RequestMethod.ALL },
+        { path: 'behavior*', method: RequestMethod.ALL },
+        { path: 'fraud*', method: RequestMethod.ALL },
+        { path: 'onboarding*', method: RequestMethod.ALL },
       );
   }
 }
