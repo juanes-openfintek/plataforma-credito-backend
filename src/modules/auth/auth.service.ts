@@ -18,6 +18,7 @@ import {
   RegisterUserRoleDto,
   UpdateUserDto,
   UserEmailDto,
+  LoginCommercialDto,
 } from './dto';
 import { ValidRoles } from './interfaces';
 import {
@@ -32,12 +33,15 @@ import {
 
 import * as admin from 'firebase-admin';
 import { UpdateUserAdminDto } from './dto/updateUser.dto';
+import { CommercialService } from '../commercial/commercial.service';
+import { RegisterCommercialUserDto } from '../commercial/dto/register-commercial.dto';
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name)
     private readonly userModel: Model<User>,
     private readonly jwtService: JwtService,
+    private readonly commercialService: CommercialService,
   ) {}
 
   async register(registerUserDto: RegisterUserDto) {
@@ -125,7 +129,7 @@ export class AuthService {
 
     console.warn('Email verification request omitted (demo mode).');
     return {
-      message: 'La verificación de correo está deshabilitada temporalmente para la demo.',
+      message: 'La verificaciï¿½n de correo estï¿½ deshabilitada temporalmente para la demo.',
     };
   }
   async sendPasswordResetEmail({ email }: UserEmailDto): Promise<any> {
@@ -290,6 +294,101 @@ export class AuthService {
     } catch (error) {
       console.log(error);
       throw new InternalServerErrorException('Error al obtener usuarios.');
+    }
+  }
+
+  async registerCommercial(
+    registerCommercialDto: RegisterCommercialUserDto,
+  ): Promise<any> {
+    try {
+      const { email, password, companyName, registrationNumber, taxId } =
+        registerCommercialDto;
+
+      const roles: string[] = [ValidRoles.user, ValidRoles.commercial];
+
+      const auth = getAuth();
+
+      // Create Firebase user
+      const userCredentials = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+
+      // Create User document in MongoDB
+      const mongoUser = await this.userModel.create({
+        uid: userCredentials.user.uid,
+        email,
+        roles,
+        emailVerified: true,
+        name: registerCommercialDto.legalRepresentativeName,
+      });
+
+      // Create Commercial profile
+      const commercialProfile =
+        await this.commercialService.createCommercialProfile(
+          mongoUser._id.toString(),
+          registerCommercialDto,
+        );
+
+      console.warn('Email verification skipped (demo mode active).');
+
+      const token = await admin
+        .auth()
+        .createCustomToken(userCredentials.user.uid);
+
+      return {
+        token: token,
+        user: {
+          uid: userCredentials.user.uid,
+          email: mongoUser.email,
+          roles: mongoUser.roles,
+          commercialId: commercialProfile._id,
+          companyName: commercialProfile.companyName,
+        },
+      };
+    } catch (error) {
+      this.handleDBError(error);
+    }
+  }
+
+  async loginCommercial(loginCommercialDto: LoginCommercialDto): Promise<any> {
+    try {
+      const { usuario, codigo } = loginCommercialDto;
+
+      // Credentials de demo
+      const DEMO_USUARIO = 'usuario-comercial';
+      const DEMO_CODIGO = '123456';
+
+      if (usuario === DEMO_USUARIO && codigo === DEMO_CODIGO) {
+        // Crear un token demo para el usuario comercial
+        const demoPayload = {
+          sub: 'demo-commercial-user',
+          email: 'comercial@demo.com',
+          roles: [ValidRoles.commercial, ValidRoles.user],
+          usuario: usuario,
+        };
+
+        const token = await admin.auth().createCustomToken('demo-commercial-user');
+
+        return {
+          token: token,
+          user: {
+            uid: 'demo-commercial-user',
+            email: 'comercial@demo.com',
+            roles: [ValidRoles.commercial, ValidRoles.user],
+            usuario: usuario,
+            companyName: 'Empresa Demo',
+          },
+        };
+      } else {
+        throw new UnauthorizedException('Usuario o cÃ³digo incorrectos');
+      }
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      this.handleDBError(error);
     }
   }
 }

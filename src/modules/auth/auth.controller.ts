@@ -6,6 +6,7 @@ import {
   RegisterUserRoleDto,
   UpdateUserDto,
   UserEmailDto,
+  LoginCommercialDto,
 } from './dto';
 import { GetUser, Auth } from './decorators';
 import { User } from './entities/user.entity';
@@ -13,6 +14,7 @@ import { ValidRoles } from './interfaces';
 import { ValidEmail } from './decorators/validEmail.decorator';
 import { UpdateUserAdminDto } from './dto/updateUser.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { RegisterCommercialUserDto } from '../commercial/dto/register-commercial.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -24,9 +26,19 @@ export class AuthController {
     return this.authService.register(registerUserDto);
   }
 
+  @Post('register-commercial')
+  registerCommercial(@Body() registerCommercialDto: RegisterCommercialUserDto) {
+    return this.authService.registerCommercial(registerCommercialDto);
+  }
+
   @Post('login')
   loginUser(@Body() loginUserDto: LoginUserDto) {
     return this.authService.login(loginUserDto);
+  }
+
+  @Post('login-commercial')
+  loginCommercial(@Body() loginCommercialDto: LoginCommercialDto) {
+    return this.authService.loginCommercial(loginCommercialDto);
   }
 
   @Post('create-user')

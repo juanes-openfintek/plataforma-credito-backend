@@ -20,6 +20,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { DigitalBehaviorModule } from './modules/digital-behavior/digital-behavior.module';
 import { FraudDetectionModule } from './modules/fraud-detection/fraud-detection.module';
 import { OnboardingModule } from './modules/onboarding/onboarding.module';
+import { CommercialModule } from './modules/commercial/commercial.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { OnboardingModule } from './modules/onboarding/onboarding.module';
     DigitalBehaviorModule,
     FraudDetectionModule,
     OnboardingModule,
+    CommercialModule,
   ],
   controllers: [AppController],
   providers: [AppService],
