@@ -9,13 +9,16 @@ export class User {
     return this.id;
   }
 
-  @Prop({ type: String, required: true, unique: true, index: true })
+  @Prop({ type: String, unique: true, sparse: true, index: true })
   email: string;
 
-  /* @Prop({ type: String, select: false })
-  password: string; */
+  @Prop({ type: String, select: false })
+  password: string;
 
-  @Prop({ type: String, required: true, unique: true, index: true })
+  @Prop({ type: String, unique: true, sparse: true, index: true })
+  usuario: string;
+
+  @Prop({ type: String, unique: true, sparse: true, index: true })
   uid: string;
 
   @Prop({ type: Boolean, required: true, default: true })

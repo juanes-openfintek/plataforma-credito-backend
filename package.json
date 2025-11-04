@@ -35,15 +35,16 @@
     "class-validator": "^0.14.0",
     "crypto": "^1.0.1",
     "firebase": "^10.4.0",
-    "firebase-admin": "^11.10.1",
+    "firebase-admin": "^13.5.0",
     "mongoose": "^7.5.2",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "twilio": "^5.10.4"
   },
   "devDependencies": {
-    "@nestjs/cli": "^10.1.17",
+    "@nestjs/cli": "^11.0.10",
     "@nestjs/schematics": "^10.0.2",
     "@nestjs/testing": "^10.2.5",
     "@types/bcrypt": "^5.0.0",
@@ -86,8 +87,6 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
-    "engines": {
-      "node": ">=18"
-    }
+    "engines": {}
   }
 }

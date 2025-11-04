@@ -16,17 +16,22 @@ import { CommercialService } from './commercial.service';
 import { RegisterCommercialUserDto } from './dto/register-commercial.dto';
 import { CreateClienteDto, UpdateClienteDto } from './dto/create-cliente.dto';
 import { CreateSimulationDto, SaveSimulationDto } from './dto/create-simulation.dto';
+import { GenerateOtpDto, VerifyOtpDto } from './dto/otp.dto';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { GetUser } from '../auth/decorators/getUser.decorator';
 import { ValidRoles } from '../auth/interfaces/validRoles.interface';
 import { User } from '../auth/entities/user.entity';
 import { SimulationService } from './services/simulation.service';
+import { TwilioService } from './services/twilio.service';
+import { OtpService } from './services/otp.service';
 
 @Controller('commercial')
 export class CommercialController {
   constructor(
     private readonly commercialService: CommercialService,
     private readonly simulationService: SimulationService,
+    private readonly twilioService: TwilioService,
+    private readonly otpService: OtpService,
   ) {}
 
   /**
@@ -151,6 +156,92 @@ export class CommercialController {
   async getClienteAsAdmin(@Param('clienteId') clienteId: string) {
     // This will be implemented in a separate method
     return { message: 'Get cliente as admin endpoint' };
+  }
+
+  /**
+   * OTP endpoints
+   */
+
+  /**
+   * Generar y enviar código OTP por SMS
+   */
+  @Post('otp/generate')
+  @Auth(ValidRoles.commercial)
+  @HttpCode(HttpStatus.OK)
+  async generateOtp(@Body() dto: GenerateOtpDto) {
+    try {
+      // Generar código OTP
+      const otp = this.otpService.generateOtp();
+
+      // Guardar OTP
+      this.otpService.saveOtp(dto.phone, otp);
+
+      // Enviar SMS
+      await this.twilioService.sendSMS(
+        dto.phone,
+        `Tu código de verificación FeelPay es: ${otp}. Válido por 5 minutos.`,
+      );
+
+      return {
+        success: true,
+        message: 'Código OTP enviado exitosamente',
+        expiresIn: 300, // 5 minutos en segundos
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Error al enviar código OTP',
+        error: error.message,
+      };
+    }
+  }
+
+  /**
+   * Verificar código OTP
+   */
+  @Post('otp/verify')
+  @Auth(ValidRoles.commercial)
+  @HttpCode(HttpStatus.OK)
+  async verifyOtp(@Body() dto: VerifyOtpDto) {
+    const isValid = this.otpService.verifyOtp(dto.phone, dto.otp);
+
+    if (!isValid) {
+      const remainingAttempts = this.otpService.getRemainingAttempts(dto.phone);
+      return {
+        success: false,
+        message: remainingAttempts > 0 
+          ? `Código inválido. Te quedan ${remainingAttempts} intentos.`
+          : 'Código inválido o expirado. Solicita uno nuevo.',
+        remainingAttempts,
+      };
+    }
+
+    return {
+      success: true,
+      message: 'Código verificado exitosamente',
+    };
+  }
+
+  /**
+   * Obtener tiempo restante del OTP
+   */
+  @Get('otp/time-remaining/:phone')
+  @Auth(ValidRoles.commercial)
+  async getOtpTimeRemaining(@Param('phone') phone: string) {
+    const timeRemaining = this.otpService.getTimeRemaining(phone);
+
+    if (timeRemaining === null) {
+      return {
+        hasOtp: false,
+        message: 'No hay código OTP activo para este teléfono',
+      };
+    }
+
+    return {
+      hasOtp: true,
+      timeRemaining,
+      canResend: timeRemaining <= 0,
+    };
   }
 
   /**
