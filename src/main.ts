@@ -8,7 +8,14 @@ import * as firebase from 'firebase/app';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bodyParser: true,
+    rawBody: true,
+  });
+  
+  // Aumentar el límite de tamaño de payload para archivos grandes
+  app.use(require('express').json({ limit: '50mb' }));
+  app.use(require('express').urlencoded({ limit: '50mb', extended: true }));
   
   // Habilitar CORS para permitir peticiones desde el frontend
   app.enableCors({

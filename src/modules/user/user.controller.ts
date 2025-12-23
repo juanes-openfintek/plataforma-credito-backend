@@ -21,8 +21,9 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 @Auth(
   ValidRoles.user,
   ValidRoles.admin,
-  ValidRoles.approver,
-  ValidRoles.disburser,
+  ValidRoles.analyst1,
+  ValidRoles.analyst2,
+  ValidRoles.analyst3,
 )
 export class UserController {
   constructor(

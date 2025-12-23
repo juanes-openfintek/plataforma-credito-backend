@@ -3,22 +3,25 @@ import { HydratedDocument } from 'mongoose';
 
 export type UserDocument = HydratedDocument<User>;
 
-@Schema()
+@Schema({
+  timestamps: true,
+  collection: 'users',
+})
 export class User {
   get id(): string {
     return this.id;
   }
 
-  @Prop({ type: String, unique: true, sparse: true, index: true })
+  @Prop({ type: String, unique: true, sparse: true })
   email: string;
 
   @Prop({ type: String, select: false })
   password: string;
 
-  @Prop({ type: String, unique: true, sparse: true, index: true })
+  @Prop({ type: String, unique: true, sparse: true })
   usuario: string;
 
-  @Prop({ type: String, unique: true, sparse: true, index: true })
+  @Prop({ type: String, unique: true, sparse: true })
   uid: string;
 
   @Prop({ type: Boolean, required: true, default: true })
@@ -53,3 +56,8 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+// Asegurar que los índices son sparse para permitir null values
+UserSchema.index({ email: 1 }, { unique: true, sparse: true });
+UserSchema.index({ usuario: 1 }, { unique: true, sparse: true });
+UserSchema.index({ uid: 1 }, { unique: true, sparse: true });

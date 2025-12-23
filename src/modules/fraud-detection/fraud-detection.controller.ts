@@ -9,7 +9,7 @@ export class FraudDetectionController {
   constructor(private readonly fraudDetectionService: FraudDetectionService) {}
 
   @Post('check/:userId')
-  @Auth(ValidRoles.admin, ValidRoles.approver)
+  @Auth(ValidRoles.admin, ValidRoles.analyst1, ValidRoles.analyst2, ValidRoles.analyst3)
   async checkUser(
     @Param('userId') userId: string,
     @Body() userDoc: any,
@@ -19,7 +19,7 @@ export class FraudDetectionController {
   }
 
   @Post('check-credit/:creditId')
-  @Auth(ValidRoles.admin, ValidRoles.approver)
+  @Auth(ValidRoles.admin, ValidRoles.analyst1, ValidRoles.analyst2, ValidRoles.analyst3)
   async checkCredit(
     @Param('creditId') creditId: string,
     @Body() data: { userId: string; creditData: any; userDoc: any; ipAddress?: string },
@@ -34,14 +34,14 @@ export class FraudDetectionController {
   }
 
   @Get('alerts')
-  @Auth(ValidRoles.admin, ValidRoles.approver)
+  @Auth(ValidRoles.admin, ValidRoles.analyst1, ValidRoles.analyst2, ValidRoles.analyst3)
   async getActiveAlerts(@Query('limit') limit?: string) {
     const limitNum = limit ? parseInt(limit) : 100;
     return this.fraudDetectionService.getActiveAlerts(limitNum);
   }
 
   @Get('history/:userId')
-  @Auth(ValidRoles.admin, ValidRoles.approver)
+  @Auth(ValidRoles.admin, ValidRoles.analyst1, ValidRoles.analyst2, ValidRoles.analyst3)
   async getUserHistory(@Param('userId') userId: string) {
     return this.fraudDetectionService.getUserFraudHistory(userId);
   }

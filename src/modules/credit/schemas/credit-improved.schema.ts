@@ -7,14 +7,38 @@ export type CreditDocument = Credit & Document;
 export enum CreditStatus {
   DRAFT = 'DRAFT', // Borrador
   INCOMPLETE = 'INCOMPLETE', // Incompleto
-  UNDER_REVIEW = 'UNDER_REVIEW', // En revisión
-  PENDING_APPROVAL = 'PENDING_APPROVAL', // Pendiente aprobación
-  APPROVED = 'APPROVED', // Aprobado
-  REJECTED = 'REJECTED', // Rechazado
+  SUBMITTED = 'SUBMITTED', // Radicado, pendiente analista 1
+  
+  // Analista 1 - Validación Inicial
+  ANALYST1_REVIEW = 'ANALYST1_REVIEW', // En revisión por analista 1
+  ANALYST1_APPROVED = 'ANALYST1_APPROVED', // Aprobado por analista 1
+  ANALYST1_RETURNED = 'ANALYST1_RETURNED', // Devuelto al usuario por analista 1
+  
+  // Analista 2 - Análisis Cualitativo
+  ANALYST2_REVIEW = 'ANALYST2_REVIEW', // En revisión por analista 2
+  ANALYST2_APPROVED = 'ANALYST2_APPROVED', // Aprobado por analista 2
+  ANALYST2_RETURNED = 'ANALYST2_RETURNED', // Devuelto a analista 1
+  
+  // Analista 3 - Preaprobación y Documentos
+  ANALYST3_REVIEW = 'ANALYST3_REVIEW', // En revisión por analista 3
+  ANALYST3_APPROVED = 'ANALYST3_APPROVED', // Pre-aprobado por analista 3
+  ANALYST3_RETURNED = 'ANALYST3_RETURNED', // Devuelto a analista 2
+  
+  // Firma y desembolso
+  PENDING_SIGNATURE = 'PENDING_SIGNATURE', // Esperando firma electrónica
+  READY_TO_DISBURSE = 'READY_TO_DISBURSE', // Listo para desembolsar
   DISBURSED = 'DISBURSED', // Desembolsado
+  
+  // Estados finales
+  REJECTED = 'REJECTED', // Rechazado
   ACTIVE = 'ACTIVE', // Activo (pagando)
   PAID = 'PAID', // Pagado completamente
   DEFAULTED = 'DEFAULTED', // Incumplimiento
+  
+  // Estados legacy (mantener para compatibilidad)
+  UNDER_REVIEW = 'UNDER_REVIEW', // En revisión (deprecado)
+  PENDING_APPROVAL = 'PENDING_APPROVAL', // Pendiente aprobación (deprecado)
+  APPROVED = 'APPROVED', // Aprobado (deprecado)
 }
 
 @Schema({ timestamps: true })
@@ -187,6 +211,65 @@ export class Credit {
     addedBy: string;
     addedAt: Date;
   }>;
+
+  // TRACKING DE ANALISTAS
+  @Prop()
+  analyst1Id?: string;
+
+  @Prop()
+  analyst1ReviewDate?: Date;
+
+  @Prop()
+  analyst1Notes?: string;
+
+  @Prop()
+  analyst2Id?: string;
+
+  @Prop()
+  analyst2ReviewDate?: Date;
+
+  @Prop()
+  analyst2Notes?: string;
+
+  @Prop()
+  analyst3Id?: string;
+
+  @Prop()
+  analyst3ReviewDate?: Date;
+
+  @Prop()
+  analyst3Notes?: string;
+
+  // HISTORIAL DE DEVOLUCIONES
+  @Prop({
+    type: [
+      {
+        returnedBy: String,
+        returnedTo: String,
+        reason: String,
+        date: Date,
+        previousStatus: String,
+      },
+    ],
+    _id: false,
+  })
+  returnHistory?: Array<{
+    returnedBy: string;
+    returnedTo: string;
+    reason: string;
+    date: Date;
+    previousStatus: string;
+  }>;
+
+  // VALIDACIONES AUTOMÁTICAS
+  @Prop({ type: Object })
+  automaticValidations?: {
+    kycScore?: number;
+    riskCentralsCheck?: boolean;
+    debtCapacityRatio?: number;
+    blacklistCheck?: boolean;
+    fraudScore?: number;
+  };
 
   @Prop()
   createdAt?: Date;

@@ -8,7 +8,7 @@ export class StatisticsController {
   constructor(private readonly statisticsService: StatisticsService) {}
 
   @Get('amountTicketsCollected')
-  @Auth(ValidRoles.admin, ValidRoles.approver, ValidRoles.disburser)
+  @Auth(ValidRoles.admin, ValidRoles.analyst1, ValidRoles.analyst2, ValidRoles.analyst3)
   async getAmountTicketsCollected(
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
@@ -17,7 +17,7 @@ export class StatisticsController {
   }
 
   @Get('amountCirculation')
-  @Auth(ValidRoles.admin, ValidRoles.approver, ValidRoles.disburser)
+  @Auth(ValidRoles.admin, ValidRoles.analyst1, ValidRoles.analyst2, ValidRoles.analyst3)
   async getAmountCirculation(
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
@@ -26,7 +26,7 @@ export class StatisticsController {
   }
 
   @Get('credits')
-  @Auth(ValidRoles.admin, ValidRoles.approver, ValidRoles.disburser)
+  @Auth(ValidRoles.admin, ValidRoles.analyst1, ValidRoles.analyst2, ValidRoles.analyst3)
   async getCredits(@Query('status') status?: string) {
     return this.statisticsService.getCredits(status);
   }

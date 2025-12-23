@@ -9,7 +9,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
-import { ApprovalEngineService } from '../approver/services/approval-engine.service';
+import { ApprovalEngineService } from '../analyst/services/approval-engine.service';
 import { CreditService } from './credit.service';
 import { EvaluateCreditDto } from './dto/evaluate-credit.dto';
 import { ApprovalResponseDto } from './dto/approval-response.dto';
@@ -206,12 +206,13 @@ export class CreditApprovalController {
     }
 
     // Check if user has permission to view this credit
-    // User can see their own credits, admin/approver/disburser can see all
+    // User can see their own credits, admin/analysts can see all
     const hasPermission =
       credit.user.toString() === user.id ||
       user.roles.includes(ValidRoles.admin) ||
-      user.roles.includes(ValidRoles.approver) ||
-      user.roles.includes(ValidRoles.disburser);
+      user.roles.includes(ValidRoles.analyst1) ||
+      user.roles.includes(ValidRoles.analyst2) ||
+      user.roles.includes(ValidRoles.analyst3);
 
     if (!hasPermission) {
       throw new HttpException(
@@ -258,10 +259,10 @@ export class CreditApprovalController {
   }
 
   @Post(':id/approve')
-  @Auth(ValidRoles.admin, ValidRoles.approver)
+  @Auth(ValidRoles.admin, ValidRoles.analyst1, ValidRoles.analyst2, ValidRoles.analyst3)
   @ApiOperation({
     summary: 'Manually approve a credit',
-    description: 'Manually approve a credit (admin/approver only)',
+    description: 'Manually approve a credit (admin/analyst only)',
   })
   @ApiParam({
     name: 'id',
@@ -345,10 +346,10 @@ export class CreditApprovalController {
   }
 
   @Post(':id/reject')
-  @Auth(ValidRoles.admin, ValidRoles.approver)
+  @Auth(ValidRoles.admin, ValidRoles.analyst1, ValidRoles.analyst2, ValidRoles.analyst3)
   @ApiOperation({
     summary: 'Reject a credit',
-    description: 'Reject a credit (admin/approver only)',
+    description: 'Reject a credit (admin/analyst only)',
   })
   @ApiParam({
     name: 'id',
@@ -428,7 +429,7 @@ export class CreditApprovalController {
   }
 
   @Put(':id/status')
-  @Auth(ValidRoles.admin, ValidRoles.approver, ValidRoles.disburser)
+  @Auth(ValidRoles.admin, ValidRoles.analyst1, ValidRoles.analyst2, ValidRoles.analyst3)
   @ApiOperation({
     summary: 'Update credit status',
     description: 'Update credit status with validation of state transitions',

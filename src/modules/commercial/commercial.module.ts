@@ -8,6 +8,9 @@ import { Simulation, SimulationSchema } from './entities/simulation.entity';
 import { SimulationService } from './services/simulation.service';
 import { TwilioService } from './services/twilio.service';
 import { OtpService } from './services/otp.service';
+import { CreditSubmissionService } from './services/credit-submission.service';
+import { Credit, CreditSchema } from '../credit/entities/credit.entity';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -15,10 +18,12 @@ import { OtpService } from './services/otp.service';
       { name: CommercialUser.name, schema: CommercialUserSchema },
       { name: ClienteCreacion.name, schema: ClienteCreacionSchema },
       { name: Simulation.name, schema: SimulationSchema },
+      { name: Credit.name, schema: CreditSchema },
     ]),
+    NotificationsModule,
   ],
-  providers: [CommercialService, SimulationService, TwilioService, OtpService],
+  providers: [CommercialService, SimulationService, TwilioService, OtpService, CreditSubmissionService],
   controllers: [CommercialController],
-  exports: [CommercialService, SimulationService, TwilioService, OtpService, CommercialModule],
+  exports: [CommercialService, SimulationService, TwilioService, OtpService, CreditSubmissionService, CommercialModule],
 })
 export class CommercialModule {}

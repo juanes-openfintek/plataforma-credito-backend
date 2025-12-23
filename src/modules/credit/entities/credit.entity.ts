@@ -22,7 +22,7 @@ export class Credit {
 
   @Prop({
     type: String,
-    enum: ['WEB', 'MOBILE', 'ADMIN'],
+    enum: ['WEB', 'MOBILE', 'ADMIN', 'COMMERCIAL'],
     default: 'WEB'
   })
   radicationSource: string;
@@ -79,6 +79,9 @@ export class Credit {
   @Prop({ type: String, required: true })
   documentNumber: string;
 
+  @Prop({ type: String, enum: ['pensionado', 'empleado'] })
+  personType?: string;
+
   // Información de laboral
 
   @Prop({ type: String, required: true })
@@ -102,6 +105,13 @@ export class Credit {
   @Prop({ type: Date, required: true })
   dateOfAdmission: Date;
 
+  // Información de pensión (si aplica)
+  @Prop({ type: String })
+  pensionIssuer?: string; // Administradora de pensiones
+
+  @Prop({ type: String })
+  pensionType?: string; // Tipo de pensión
+
   // Información financiera
 
   @Prop({ type: String, required: true })
@@ -115,6 +125,16 @@ export class Credit {
 
   @Prop({ type: String, required: true })
   disburserMethod: string;
+
+  // Información bancaria para desembolso
+  @Prop({ type: String })
+  bankName?: string;
+
+  @Prop({ type: String })
+  bankAccountType?: string;
+
+  @Prop({ type: String })
+  bankAccountNumber?: string;
 
   // Referencias personales
 
@@ -132,6 +152,146 @@ export class Credit {
 
   @Prop({ type: String, required: true })
   municipalityReferencePersonal: string;
+
+  // TRACKING DE ANALISTAS
+  @Prop({ type: String })
+  analyst1Id?: string;
+
+  @Prop({ type: Date })
+  analyst1ReviewDate?: Date;
+
+  @Prop({ type: String })
+  analyst1Notes?: string;
+
+  @Prop({ type: String })
+  analyst2Id?: string;
+
+  @Prop({ type: Date })
+  analyst2ReviewDate?: Date;
+
+  @Prop({ type: String })
+  analyst2Notes?: string;
+
+  @Prop({ type: String })
+  analyst3Id?: string;
+
+  @Prop({ type: Date })
+  analyst3ReviewDate?: Date;
+
+  @Prop({ type: String })
+  analyst3Notes?: string;
+
+  // CHECKLISTS POR ANALISTA (tareas específicas / demo)
+  @Prop({
+    type: {
+      kyc: { type: Boolean, default: false },
+      riskCentral: { type: Boolean, default: false },
+      debtCapacity: { type: Boolean, default: false },
+    },
+    _id: false,
+    default: { kyc: false, riskCentral: false, debtCapacity: false },
+  })
+  analyst1Checklist?: {
+    kyc: boolean;
+    riskCentral: boolean;
+    debtCapacity: boolean;
+  };
+
+  @Prop({
+    type: {
+      references: { type: Boolean, default: false },
+      insurabilityPolicies: { type: Boolean, default: false },
+      portfolioPurchase: { type: Boolean, default: false },
+      employmentOrPensionVerification: { type: Boolean, default: false },
+    },
+    _id: false,
+    default: {
+      references: false,
+      insurabilityPolicies: false,
+      portfolioPurchase: false,
+      employmentOrPensionVerification: false,
+    },
+  })
+  analyst2Checklist?: {
+    references: boolean;
+    insurabilityPolicies: boolean;
+    portfolioPurchase: boolean;
+    employmentOrPensionVerification: boolean;
+  };
+
+  @Prop({
+    type: {
+      reviewAnalyst1: { type: Boolean, default: false },
+      reviewAnalyst2: { type: Boolean, default: false },
+      finalRectification: { type: Boolean, default: false },
+    },
+    _id: false,
+    default: { reviewAnalyst1: false, reviewAnalyst2: false, finalRectification: false },
+  })
+  analyst3Checklist?: {
+    reviewAnalyst1: boolean;
+    reviewAnalyst2: boolean;
+    finalRectification: boolean;
+  };
+
+  // HISTORIAL DE DEVOLUCIONES
+  @Prop({
+    type: [
+      {
+        returnedBy: String,
+        returnedByRole: String,
+        returnedTo: String,
+        reason: String,
+        date: Date,
+        previousStatus: String,
+        attachments: [{
+          fileName: String,
+          fileUrl: String,
+          documentType: String,
+        }],
+      },
+    ],
+    _id: false,
+  })
+  returnHistory?: Array<{
+    returnedBy: string;
+    returnedByRole?: string;
+    returnedTo: string;
+    reason: string;
+    date: Date;
+    previousStatus: string;
+    attachments?: Array<{
+      fileName: string;
+      fileUrl: string;
+      documentType: string;
+    }>;
+  }>;
+
+  // VALIDACIONES AUTOMÁTICAS
+  @Prop({ type: Object })
+  automaticValidations?: {
+    kycScore?: number;
+    riskCentralsCheck?: boolean;
+    debtCapacityRatio?: number;
+    blacklistCheck?: boolean;
+    fraudScore?: number;
+  };
+
+  // Compra de cartera (trazabilidad para analistas)
+  @Prop({ type: Boolean, default: false })
+  requiresPortfolioPurchase?: boolean;
+
+  @Prop({ type: Array })
+  portfolioDebts?: any[];
+
+  @Prop({ type: Number })
+  maxQuota?: number;
+
+  @Prop({ type: Number })
+  maxAmount?: number;
+
+  @Prop({ type: Number })
+  desiredQuota?: number;
 }
 
 export const CreditSchema = SchemaFactory.createForClass(Credit);

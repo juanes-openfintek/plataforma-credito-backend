@@ -96,7 +96,7 @@ export class AuthController {
   }
 
   @Get('private2')
-  @Auth(ValidRoles.disburser, ValidRoles.admin)
+  @Auth(ValidRoles.analyst3, ValidRoles.admin)
   privateRoute2(@GetUser() user: User) {
     return {
       ok: true,

@@ -15,7 +15,7 @@ export class FilesController {
 
   @Post('user')
   @UseInterceptors(FileInterceptor('file', FILE_UPLOAD_OPTIONS))
-  async uploadFileUser(@UploadedFile() file: Express.Multer.File) {
+  async uploadFileUser(@UploadedFile() file: any) {
     const fileUrl = await this.filesService.uploadFile(file);
     return { url: fileUrl };
   }
@@ -23,7 +23,7 @@ export class FilesController {
   // Alias para compatibilidad con el frontend
   @Post('upload')
   @UseInterceptors(FileInterceptor('file', FILE_UPLOAD_OPTIONS))
-  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+  async uploadFile(@UploadedFile() file: any) {
     const fileUrl = await this.filesService.uploadFile(file);
     return { url: fileUrl };
   }

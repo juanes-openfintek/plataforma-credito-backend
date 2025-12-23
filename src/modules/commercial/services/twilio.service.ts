@@ -27,21 +27,61 @@ export class TwilioService {
    * Enviar SMS usando Twilio
    */
   async sendSMS(to: string, message: string): Promise<any> {
+    // Modo demo para desarrollo
+    const isDemoMode = process.env.TWILIO_DEMO_MODE === 'true';
+    const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
+
+    // Formatear número
+    let phoneNumber = to;
+    if (!phoneNumber.startsWith('+')) {
+      phoneNumber = `+57${phoneNumber}`;
+    }
+
+    // Validar que no se intente enviar al mismo número
+    if (phoneNumber === twilioPhone) {
+      const errorMsg = `Cannot send SMS to the same number as Twilio phone. From: ${twilioPhone}, To: ${phoneNumber}`;
+      this.logger.error(errorMsg);
+      
+      // En modo demo, simular éxito y mostrar el código
+      if (isDemoMode) {
+        this.logger.warn('⚠️  DEMO MODE: Simulating SMS send');
+        this.logger.log(`📱 SMS would be sent to: ${phoneNumber}`);
+        this.logger.log(`📝 Message: ${message}`);
+        
+        return {
+          success: true,
+          sid: `DEMO-${Date.now()}`,
+          status: 'demo',
+          message: 'Demo mode - SMS not actually sent',
+        };
+      }
+      
+      throw new Error(errorMsg);
+    }
+
+    // Modo demo: simular envío sin usar Twilio
+    if (isDemoMode) {
+      this.logger.warn('⚠️  DEMO MODE: Simulating SMS send');
+      this.logger.log(`📱 To: ${phoneNumber}`);
+      this.logger.log(`📝 Message: ${message}`);
+      
+      return {
+        success: true,
+        sid: `DEMO-${Date.now()}`,
+        status: 'demo',
+        message: 'Demo mode - check backend console for OTP code',
+      };
+    }
+
+    // Envío real con Twilio
     if (!this.client) {
       throw new Error('Twilio client not initialized. Check your credentials.');
     }
 
     try {
-      // Asegurar formato del número (debe incluir código de país)
-      let phoneNumber = to;
-      if (!phoneNumber.startsWith('+')) {
-        // Si el número no tiene +, asumimos que es colombiano
-        phoneNumber = `+57${phoneNumber}`;
-      }
-
       const result = await this.client.messages.create({
         body: message,
-        from: process.env.TWILIO_PHONE_NUMBER,
+        from: twilioPhone,
         to: phoneNumber,
       });
 
@@ -53,7 +93,7 @@ export class TwilioService {
         status: result.status,
       };
     } catch (error) {
-      this.logger.error(`Error sending SMS to ${to}:`, error);
+      this.logger.error(`Error sending SMS to ${to}:`, error.message);
       throw error;
     }
   }

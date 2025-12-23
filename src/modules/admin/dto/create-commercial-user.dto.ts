@@ -7,7 +7,7 @@ export class CreateCommercialUserDto {
   usuario: string;
 
   @IsString()
-  @MinLength(6)
+  @MinLength(8, { message: 'El código debe tener mínimo 8 dígitos' })
   codigo: string;
 
   // Datos de la empresa

@@ -19,7 +19,7 @@ export class DigitalBehaviorController {
   }
 
   @Get(':userId/timeline')
-  @Auth(ValidRoles.admin, ValidRoles.approver)
+  @Auth(ValidRoles.admin, ValidRoles.analyst1, ValidRoles.analyst2, ValidRoles.analyst3)
   async getUserTimeline(
     @Param('userId') userId: string,
     @Query() queryDto: QueryBehaviorDto,
@@ -28,7 +28,7 @@ export class DigitalBehaviorController {
   }
 
   @Get(':userId/analysis')
-  @Auth(ValidRoles.admin, ValidRoles.approver)
+  @Auth(ValidRoles.admin, ValidRoles.analyst1, ValidRoles.analyst2, ValidRoles.analyst3)
   async analyzeUser(
     @Param('userId') userId: string,
     @Query('daysBack') daysBack?: string,
@@ -38,7 +38,7 @@ export class DigitalBehaviorController {
   }
 
   @Get(':userId/anomalies')
-  @Auth(ValidRoles.admin, ValidRoles.approver)
+  @Auth(ValidRoles.admin, ValidRoles.analyst1, ValidRoles.analyst2, ValidRoles.analyst3)
   async getUserAnomalies(
     @Param('userId') userId: string,
     @Query('limit') limit?: string,

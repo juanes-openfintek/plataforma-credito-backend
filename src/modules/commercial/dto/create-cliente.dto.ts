@@ -1,8 +1,7 @@
-import { IsOptional, IsString, IsNumber, IsDate, IsEmail, IsArray, IsObject } from 'class-validator';
+﻿import { IsOptional, IsString, IsNumber, IsDate, IsEmail, IsArray, IsObject, IsBoolean } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateClienteDto {
-  // Step 1: Identification
   @IsString()
   identificationType: string;
 
@@ -12,12 +11,14 @@ export class CreateClienteDto {
   @IsString()
   phone: string;
 
-  // Step 2: OTP
+  @IsString()
+  @IsOptional()
+  personType?: string;
+
   @IsString()
   @IsOptional()
   otp?: string;
 
-  // Step 3: Pension
   @IsString()
   @IsOptional()
   pensionIssuer?: string;
@@ -26,7 +27,6 @@ export class CreateClienteDto {
   @IsOptional()
   pensionType?: string;
 
-  // Step 4: Basic Data
   @IsString()
   @IsOptional()
   firstName?: string;
@@ -48,7 +48,6 @@ export class CreateClienteDto {
   @IsOptional()
   gender?: string;
 
-  // Step 5: Financial
   @IsNumber()
   @IsOptional()
   monthlyIncome?: number;
@@ -57,11 +56,30 @@ export class CreateClienteDto {
   @IsOptional()
   monthlyExpenses?: number;
 
+  @IsNumber()
+  @IsOptional()
+  maxQuota?: number;
+
+  @IsNumber()
+  @IsOptional()
+  maxAmount?: number;
+
+  @IsNumber()
+  @IsOptional()
+  desiredQuota?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  requiresPortfolioPurchase?: boolean;
+
+  @IsArray()
+  @IsOptional()
+  portfolioDebts?: any[];
+
   @IsString()
   @IsOptional()
   creditExperience?: string;
 
-  // Step 7: Credit Simulation
   @IsNumber()
   @IsOptional()
   creditAmount?: number;
@@ -70,16 +88,10 @@ export class CreateClienteDto {
   @IsOptional()
   creditTerm?: number;
 
-  // Step 8: Documents
   @IsArray()
   @IsOptional()
-  documents?: Array<{
-    documentType: string;
-    fileName: string;
-    fileUrl: string;
-  }>;
+  documents?: Array<{ documentType: string; fileName: string; fileUrl: string }>;
 
-  // Step 9: Detailed Forms
   @IsString()
   @IsOptional()
   healthStatus?: string;
@@ -115,22 +127,11 @@ export class CreateClienteDto {
 
   @IsObject()
   @IsOptional()
-  laborInfo?: {
-    company: string;
-    position: string;
-    sector: string;
-    yearsOfExperience: number;
-    contractType: string;
-  };
+  laborInfo?: any;
 
   @IsObject()
   @IsOptional()
-  financialDetails?: {
-    savingsAccounts: number;
-    otherIncome: number;
-    currentDebts: number;
-    monthlyObligations: number;
-  };
+  financialDetails?: any;
 
   @IsString()
   @IsOptional()
@@ -154,6 +155,138 @@ export class UpdateClienteDto {
   @IsOptional()
   notes?: string;
 
-  // Allow updating any field
+  @IsBoolean()
+  @IsOptional()
+  otpVerified?: boolean;
+
+  @IsString()
+  @IsOptional()
+  pensionType?: string;
+
+  @IsString()
+  @IsOptional()
+  pensionIssuer?: string;
+
+  @IsString()
+  @IsOptional()
+  firstName?: string;
+
+  @IsString()
+  @IsOptional()
+  lastName?: string;
+
+  @IsString()
+  @IsOptional()
+  birthDate?: string;
+
+  @IsString()
+  @IsOptional()
+  email?: string;
+
+  @IsString()
+  @IsOptional()
+  gender?: string;
+
+  @IsString()
+  @IsOptional()
+  idIssuancePlace?: string;
+
+  @IsString()
+  @IsOptional()
+  idIssuanceDate?: string;
+
+  @IsString()
+  @IsOptional()
+  birthPlace?: string;
+
+  @IsString()
+  @IsOptional()
+  birthCountry?: string;
+
+  @IsString()
+  @IsOptional()
+  riskStatus?: string;
+
+  @IsNumber()
+  @IsOptional()
+  riskScore?: number;
+
+  @IsOptional()
+  riskDetails?: any;
+
+  @IsNumber()
+  @IsOptional()
+  creditAmount?: number;
+
+  @IsNumber()
+  @IsOptional()
+  creditTerm?: number;
+
+  @IsNumber()
+  @IsOptional()
+  monthlyPayment?: number;
+
+  @IsNumber()
+  @IsOptional()
+  totalInterest?: number;
+
+  @IsNumber()
+  @IsOptional()
+  totalToPay?: number;
+
+  @IsNumber()
+  @IsOptional()
+  monthlyIncome?: number;
+
+  @IsNumber()
+  @IsOptional()
+  monthlyExpenses?: number;
+
+  @IsNumber()
+  @IsOptional()
+  maxQuota?: number;
+
+  @IsNumber()
+  @IsOptional()
+  maxAmount?: number;
+
+  @IsNumber()
+  @IsOptional()
+  desiredQuota?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  requiresPortfolioPurchase?: boolean;
+
+  @IsArray()
+  @IsOptional()
+  portfolioDebts?: any[];
+
+  @IsArray()
+  @IsOptional()
+  documents?: any[];
+
+  @IsString()
+  @IsOptional()
+  healthStatus?: string;
+
+  @IsString()
+  @IsOptional()
+  disability?: string;
+
+  @IsString()
+  @IsOptional()
+  educationLevel?: string;
+
+  @IsString()
+  @IsOptional()
+  maritalStatus?: string;
+
+  @IsOptional()
+  laborInfo?: any;
+
+  @IsOptional()
+  financialDetails?: any;
+
   [key: string]: any;
 }

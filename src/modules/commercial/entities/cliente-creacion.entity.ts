@@ -17,6 +17,9 @@ export class ClienteCreacion extends Document {
   @Prop({ type: String, required: true })
   phone: string;
 
+  @Prop({ type: String, enum: ['pensionado', 'empleado'], required: true })
+  personType: string;
+
   // Step 2: OTP Verification (stored for audit)
   @Prop({ type: Boolean, default: false })
   otpVerified: boolean;
@@ -53,6 +56,21 @@ export class ClienteCreacion extends Document {
 
   @Prop({ type: Number })
   monthlyExpenses: number;
+
+  @Prop({ type: Number })
+  maxQuota?: number;
+
+  @Prop({ type: Number })
+  maxAmount?: number;
+
+  @Prop({ type: Number })
+  desiredQuota?: number;
+
+  @Prop({ type: Boolean, default: false })
+  requiresPortfolioPurchase?: boolean;
+
+  @Prop({ type: Array })
+  portfolioDebts?: any[];
 
   @Prop({ type: String })
   creditExperience: string; // excelente, buena, regular, pobre, sin-historial
@@ -154,7 +172,7 @@ export class ClienteCreacion extends Document {
   // Overall Status
   @Prop({
     type: String,
-    enum: ['iniciado', 'en-progreso', 'completado', 'aprobado', 'rechazado', 'desembolsado'],
+    enum: ['iniciado', 'en-progreso', 'completado', 'radicado', 'aprobado', 'rechazado', 'desembolsado'],
     default: 'iniciado',
   })
   status: string;
@@ -164,6 +182,10 @@ export class ClienteCreacion extends Document {
 
   @Prop({ type: Date })
   submissionDate: Date;
+
+  // Credit reference (when radicated)
+  @Prop({ type: Types.ObjectId, ref: 'Credit' })
+  creditId?: Types.ObjectId;
 
   // Notes
   @Prop({ type: String })

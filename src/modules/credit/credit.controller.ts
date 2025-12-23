@@ -30,7 +30,7 @@ export class CreditController {
   }
 
   @Get('get-all-credits')
-  @Auth(ValidRoles.admin, ValidRoles.approver, ValidRoles.disburser)
+  @Auth(ValidRoles.admin, ValidRoles.analyst1, ValidRoles.analyst2, ValidRoles.analyst3)
   getAllCredits(@Query('status') status?: string) {
     const filter = status ? { status } : {};
     return this.creditService.getAllCredits(filter);
@@ -72,8 +72,9 @@ export class CreditController {
     const hasPermission =
       credit.user.toString() === user.id ||
       user.roles.includes(ValidRoles.admin) ||
-      user.roles.includes(ValidRoles.approver) ||
-      user.roles.includes(ValidRoles.disburser);
+      user.roles.includes(ValidRoles.analyst1 as any) ||
+      user.roles.includes(ValidRoles.analyst2 as any) ||
+      user.roles.includes(ValidRoles.analyst3 as any);
 
     if (!hasPermission) {
       throw new HttpException(

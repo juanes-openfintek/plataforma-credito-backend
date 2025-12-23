@@ -17,7 +17,7 @@ export class CommercialUser extends Document {
   @Prop({ type: String, required: true, unique: true })
   taxId: string; // NIT / Tax ID
 
-  @Prop({ type: String, required: true })
+  @Prop({ type: String })
   companyEmail: string;
 
   @Prop({ type: String, required: true })

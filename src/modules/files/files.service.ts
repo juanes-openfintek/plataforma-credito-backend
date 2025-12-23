@@ -7,7 +7,7 @@ import { Auth } from '../auth/decorators';
 export class FilesService {
   private readonly logger = new Logger(FilesService.name);
 
-  async uploadFile(file: Express.Multer.File): Promise<string> {
+  async uploadFile(file: any): Promise<string> {
     if (!file) {
       throw new BadRequestException('No se recibió ningún archivo para cargar.');
     }
@@ -27,7 +27,7 @@ export class FilesService {
   }
 
   private async getFileBuffer(
-    file: Express.Multer.File,
+    file: any,
     safeOriginalName: string,
   ): Promise<Buffer> {
     if (file.buffer && file.buffer.length) {

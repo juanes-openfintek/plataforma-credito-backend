@@ -24,6 +24,10 @@ import { User } from '../auth/entities/user.entity';
 import { SimulationService } from './services/simulation.service';
 import { TwilioService } from './services/twilio.service';
 import { OtpService } from './services/otp.service';
+import { CreditSubmissionService } from './services/credit-submission.service';
+import { ApiBody } from '@nestjs/swagger';
+import { NotificationsService } from '../notifications/notifications.service';
+import { QueryNotificationsDto } from '../notifications/dto/query-notifications.dto';
 
 @Controller('commercial')
 export class CommercialController {
@@ -32,6 +36,8 @@ export class CommercialController {
     private readonly simulationService: SimulationService,
     private readonly twilioService: TwilioService,
     private readonly otpService: OtpService,
+    private readonly creditSubmissionService: CreditSubmissionService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   /**
@@ -309,5 +315,141 @@ export class CommercialController {
     @Param('simulationId') simulationId: string,
   ) {
     return this.simulationService.convertToCredit(user.id, simulationId);
+  }
+
+  /**
+   * Radicar un cliente completado como crédito para analistas
+   */
+  @Post('clientes/:clienteId/submit')
+  @Auth(ValidRoles.commercial)
+  @HttpCode(HttpStatus.CREATED)
+  async submitClienteAsCredit(
+    @GetUser() user: User,
+    @Param('clienteId') clienteId: string,
+  ) {
+    return this.creditSubmissionService.submitClienteAsCredit(
+      clienteId,
+      user.id,
+    );
+  }
+
+  /**
+   * Radicar múltiples clientes como créditos
+   */
+  @Post('clientes/submit-multiple')
+  @Auth(ValidRoles.commercial)
+  @HttpCode(HttpStatus.CREATED)
+  async submitMultipleClientes(
+    @GetUser() user: User,
+    @Body() body: { clienteIds: string[] },
+  ) {
+    return this.creditSubmissionService.submitMultipleClientes(
+      body.clienteIds,
+      user.id,
+    );
+  }
+
+  /**
+   * Obtener todos los créditos radicados
+   */
+  @Get('radicated-credits')
+  @Auth(ValidRoles.commercial)
+  async getRadicatedCredits(@GetUser() user: User) {
+    return this.creditSubmissionService.getRadicatedCredits(user.id);
+  }
+
+  /**
+   * Reenviar un crédito al analista que lo devolvió
+   */
+  @Post('credits/:id/resend-to-analyst')
+  @Auth(ValidRoles.commercial)
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        notes: { type: 'string', example: 'Ya cargué los documentos solicitados' },
+        attachments: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              fileName: { type: 'string' },
+              fileUrl: { type: 'string' },
+              documentType: { type: 'string' },
+            },
+          },
+        },
+      },
+    },
+  })
+  async resendToAnalyst(
+    @Param('id') id: string,
+    @Body('notes') notes: string,
+    @Body('attachments') attachments: Array<{ fileName: string; fileUrl: string; documentType: string }>,
+    @GetUser() user: User,
+  ) {
+    return this.creditSubmissionService.resendToAnalyst(id, user.id, notes, attachments);
+  }
+
+  /**
+   * Actualizar datos del crédito cuando está devuelto al comercial
+   */
+  @Put('credits/:id')
+  @Auth(ValidRoles.commercial)
+  async updateCreditFromCommercial(
+    @Param('id') id: string,
+    @Body() body: any,
+    @GetUser() user: User,
+  ) {
+    return this.creditSubmissionService.updateCreditFromCommercial(
+      id,
+      user.id,
+      body,
+    );
+  }
+
+  /**
+   * Obtener notificaciones del comercial
+   */
+  @Get('notifications')
+  @Auth(ValidRoles.commercial)
+  async getNotifications(
+    @GetUser() user: User,
+    @Query() queryDto: QueryNotificationsDto,
+  ) {
+    return this.notificationsService.getUserNotifications(user.id, queryDto);
+  }
+
+  /**
+   * Obtener cantidad de notificaciones no leídas del comercial
+   */
+  @Get('notifications/unread-count')
+  @Auth(ValidRoles.commercial)
+  async getUnreadCount(@GetUser() user: User) {
+    const result = await this.notificationsService.getUserNotifications(user.id, {
+      isRead: false,
+    });
+    return { count: result.unreadCount };
+  }
+
+  /**
+   * Marcar notificación como leída
+   */
+  @Patch('notifications/:id/read')
+  @Auth(ValidRoles.commercial)
+  async markNotificationAsRead(
+    @Param('id') id: string,
+    @GetUser() user: User,
+  ) {
+    return this.notificationsService.markAsRead(id, user.id);
+  }
+
+  /**
+   * Marcar todas las notificaciones como leídas
+   */
+  @Patch('notifications/mark-all-read')
+  @Auth(ValidRoles.commercial)
+  async markAllNotificationsAsRead(@GetUser() user: User) {
+    return this.notificationsService.markAllAsRead(user.id);
   }
 }

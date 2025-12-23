@@ -1,7 +1,8 @@
 export enum ValidRoles {
   user = 'user',
   commercial = 'commercial',
-  disburser = 'disburser',
-  approver = 'approver',
+  analyst1 = 'analyst1',
+  analyst2 = 'analyst2',
+  analyst3 = 'analyst3',
   admin = 'admin',
 }

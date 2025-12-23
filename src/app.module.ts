@@ -9,8 +9,7 @@ import { CreditModule } from './modules/credit/credit.module';
 import { TaxesModule } from './modules/taxes/taxes.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { UserModule } from './modules/user/user.module';
-import { DisburserModule } from './modules/disburser/disburser.module';
-import { ApproverModule } from './modules/approver/approver.module';
+import { AnalystModule } from './modules/analyst/analyst.module';
 import { FilesModule } from './modules/files/files.module';
 import { AccountModule } from './modules/account/account.module';
 import { StatisticsModule } from './modules/statistics/statistics.module';
@@ -33,8 +32,7 @@ import { CommercialModule } from './modules/commercial/commercial.module';
     TaxesModule,
     AdminModule,
     UserModule,
-    DisburserModule,
-    ApproverModule,
+    AnalystModule,
     FilesModule,
     AccountModule,
     StatisticsModule,
@@ -57,8 +55,10 @@ export class AppModule {
       .forRoutes(
         { path: 'admin*', method: RequestMethod.ALL },
         { path: 'user*', method: RequestMethod.ALL },
-        { path: 'approver*', method: RequestMethod.ALL },
-        { path: 'disburser*', method: RequestMethod.ALL },
+        { path: 'analyst*', method: RequestMethod.ALL },
+        { path: 'analyst1*', method: RequestMethod.ALL },
+        { path: 'analyst2*', method: RequestMethod.ALL },
+        { path: 'analyst3*', method: RequestMethod.ALL },
         { path: 'credit*', method: RequestMethod.ALL },
         { path: 'files*', method: RequestMethod.ALL },
         { path: 'statistics*', method: RequestMethod.ALL },

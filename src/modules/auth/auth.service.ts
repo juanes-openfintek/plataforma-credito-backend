@@ -156,12 +156,15 @@ export class AuthService {
 
       // Buscar datos del usuario en MongoDB
       const userData = await this.userModel.findOne({ uid: userCredential.user.uid });
+      const normalizedUser = userData
+        ? await this.migrateLegacyRoles(userData)
+        : null;
 
       // Si el usuario existe en MongoDB, retornar sus datos completos
-      if (userData) {
+      if (normalizedUser) {
         return { 
           token: token,
-          user: userData.toJSON()
+          user: normalizedUser.toJSON()
         };
       }
 
@@ -268,6 +271,54 @@ export class AuthService {
     }
   }
 
+  /**
+   * Normaliza roles legacy (approver/disburser) a los nuevos roles de analista.
+   * Si detecta un rol obsoleto, actualiza el documento en Mongo y retorna el usuario con roles corregidos.
+   */
+  private async migrateLegacyRoles(user: any): Promise<any> {
+    const roles: string[] = user?.roles || [];
+    const hasLegacyRole = roles.some((role) =>
+      ['approver', 'disburser'].includes(role),
+    );
+
+    if (!hasLegacyRole) {
+      return user;
+    }
+
+    const updatedRoles = new Set(
+      roles.filter((role) => !['approver', 'disburser'].includes(role)),
+    );
+
+    // Distribuir approver entre los tres niveles de analista de forma determinista
+    if (roles.includes('approver')) {
+      const analystLevels = [
+        ValidRoles.analyst1,
+        ValidRoles.analyst2,
+        ValidRoles.analyst3,
+      ];
+      const hashSource = (user.uid || user._id?.toString() || '').toString();
+      const hash = hashSource
+        .split('')
+        .reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
+      const targetRole = analystLevels[hash % analystLevels.length];
+      updatedRoles.add(targetRole);
+    }
+
+    // Disburser ahora se maneja con analyst3
+    if (roles.includes('disburser')) {
+      updatedRoles.add(ValidRoles.analyst3);
+    }
+
+    const normalizedRoles = Array.from(updatedRoles);
+    await this.userModel.updateOne(
+      { _id: user._id },
+      { $set: { roles: normalizedRoles } },
+    );
+
+    user.roles = normalizedRoles;
+    return user;
+  }
+
   private handleDBError(error: any): never {
     if (error?.code === 'auth/wrong-password')
       throw new UnauthorizedException(error.message);
@@ -356,34 +407,51 @@ export class AuthService {
     try {
       const { usuario, codigo } = loginCommercialDto;
 
-      // Credentials de demo
-      const DEMO_USUARIO = 'usuario-comercial';
-      const DEMO_CODIGO = '123456';
+      // Buscar el usuario comercial en la base de datos
+      const user = await this.userModel
+        .findOne({ usuario })
+        .select('+password')
+        .exec();
 
-      if (usuario === DEMO_USUARIO && codigo === DEMO_CODIGO) {
-        // Crear un token demo para el usuario comercial
-        const demoPayload = {
-          sub: 'demo-commercial-user',
-          email: 'comercial@demo.com',
-          roles: [ValidRoles.commercial, ValidRoles.user],
-          usuario: usuario,
-        };
-
-        const token = await admin.auth().createCustomToken('demo-commercial-user');
-
-        return {
-          token: token,
-          user: {
-            uid: 'demo-commercial-user',
-            email: 'comercial@demo.com',
-            roles: [ValidRoles.commercial, ValidRoles.user],
-            usuario: usuario,
-            companyName: 'Empresa Demo',
-          },
-        };
-      } else {
+      if (!user) {
         throw new UnauthorizedException('Usuario o código incorrectos');
       }
+
+      // Verificar que el usuario tiene el rol de comercial
+      if (!user.roles.includes(ValidRoles.commercial)) {
+        throw new UnauthorizedException('Usuario no autorizado como comercial');
+      }
+
+      // Verificar el código (password)
+      const bcrypt = require('bcrypt');
+      const isPasswordValid = await bcrypt.compare(codigo, user.password);
+
+      if (!isPasswordValid) {
+        throw new UnauthorizedException('Usuario o código incorrectos');
+      }
+
+      // Obtener información del perfil comercial
+      const commercialProfile = await this.commercialService.getCommercialProfile(user._id.toString());
+
+      // Generar token JWT
+      const payload = {
+        sub: user._id.toString(),
+        usuario: user.usuario,
+        roles: user.roles,
+      };
+
+      const token = this.jwtService.sign(payload);
+
+      return {
+        token: token,
+        user: {
+          id: user._id,
+          usuario: user.usuario,
+          roles: user.roles,
+          isActive: user.isActive,
+          companyName: commercialProfile?.companyName || 'N/A',
+        },
+      };
     } catch (error) {
       if (error instanceof UnauthorizedException) {
         throw error;

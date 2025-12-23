@@ -6,7 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Credit, CreditSchema } from './entities/credit.entity';
 import { Account, AccountSchema } from '../account/entities/account.entity';
-import { ApprovalEngineService } from '../approver/services/approval-engine.service';
+import { ApprovalEngineService } from '../analyst/services/approval-engine.service';
 import { AuditModule } from '../audit/audit.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 
